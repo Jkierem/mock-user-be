@@ -1,0 +1,9 @@
+{
+  "scripts": {
+    "start": {
+        "cmd": "deno run --allow-net --allow-read --allow-write --allow-env src/main.ts",
+        "desc": "Run the server",
+        "envFile": ".env"
+    }
+  }
+}
