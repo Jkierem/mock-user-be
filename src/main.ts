@@ -5,7 +5,7 @@ import { getEnv } from "./services/env.service.ts"
 import { registerUserRoutes } from './routes/user.ts'
 import { registerTransactionRoutes } from './routes/transaction.ts'
 
-const WithPort = C.withPort(Number(getEnv("PORT", "3000").unwrap()))
+const WithPort = C.withPort(Number(getEnv("PORT", "4000").unwrap()))
 
 const router = R.makeRouter()
     ['|>'](R.useDebugRoute("*","%method %pathname"))

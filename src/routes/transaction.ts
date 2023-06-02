@@ -4,6 +4,7 @@ import { TransactionError, TransactionServiceLive } from '../services/transactio
 import { BadRequest, ServerError, Success, getBody } from '../support/response.ts'
 import { Transaction, validateTransaction } from '../model/transaction.ts'
 import { ValidationError } from '../support/schema.ts'
+import * as Cors from "../support/cors.ts";
 
 const createTx = Async.require<R.HandleInput>()
     .chain(({ request, results }) => {
@@ -42,6 +43,8 @@ const getTxs = Async.require<R.HandleInput>()
 
 export const registerTransactionRoutes = (router: R.RouterAsync) => {
     return router
+        ['|>'](Cors.policy("/transactions", { methods: ["POST"] }))
         ['|>'](R.useAsync("POST", "/transactions", createTx))
+        ['|>'](Cors.policy("/transactions/:username", { methods: ["GET"] }))
         ['|>'](R.useAsync("GET" , "/transactions/:username", getTxs))
 }

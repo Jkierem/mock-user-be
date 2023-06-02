@@ -4,6 +4,7 @@ import { UserNameTaken, UserNotFound, UserServiceLive } from '../services/user.s
 import { BadRequest, NotFound, ServerError, Success, Unauthorized, getBody } from '../support/response.ts';
 import { Credentials, User, validateCredentianlsSchema, validateUserSchema } from '../model/user.ts';
 import { ValidationError } from '../support/schema.ts';
+import * as Cors from "../support/cors.ts";
 
 const getUser = Async.require<R.HandleInput>()
     .chain(({ request, results }) => {
@@ -48,7 +49,8 @@ const tryLogin = Async.require<R.HandleInput>()
                 .chain(data => UserServiceLive.findByUsername(data.username).map(user => [data.password, user] as [string, User]))
                 .chain(([a, user]) => {
                     if(user && a === user?.password){
-                        return Async.Success(results.respondWith(Success(user)))
+                        const res = Success(user)
+                        return Async.Success(results.respondWith(res))
                     } else {
                         return Async.Fail({})
                     }
@@ -63,7 +65,10 @@ const tryLogin = Async.require<R.HandleInput>()
 
 export const registerUserRoutes = (router: R.RouterAsync) => {
     return router
+        ['|>'](Cors.policy("/users/:id", { methods: ["GET"] }))
         ['|>'](R.useAsync("GET" , "/users/:id", getUser))
+        ['|>'](Cors.policy("/users", { methods: ["POST"] }))
         ['|>'](R.useAsync("POST", "/users"    , createUser))
+        ['|>'](Cors.policy("/login", { methods: ["POST"] }))
         ['|>'](R.useAsync("POST", "/login"    , tryLogin))
 }

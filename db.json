@@ -13,6 +13,13 @@
          "balance": 1000,
          "password": "1234567",
          "id": "ff577241-56b8-42d7-9080-58f15f229244"
+      },
+      "22987a6a-0ed0-4f95-9021-503201bd56fb": {
+         "name": "giselle",
+         "username": "giselle",
+         "balance": 1000,
+         "password": "1234567",
+         "id": "22987a6a-0ed0-4f95-9021-503201bd56fb"
       }
    },
    "transactions": {
@@ -22,6 +29,13 @@
          "to": "juan",
          "id": "83a954b0-039a-4402-b61a-5da5526106ee",
          "createdAt": "1685714509811"
+      },
+      "9cd7fbe9-513c-4f9d-b980-1a96558ad6c5": {
+         "amount": 100,
+         "from": "jose",
+         "to": "juan",
+         "id": "9cd7fbe9-513c-4f9d-b980-1a96558ad6c5",
+         "createdAt": "1685726601306"
       }
    }
 }
