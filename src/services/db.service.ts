@@ -35,7 +35,10 @@ export class DBServiceImpl implements DBService {
                 if(exists){
                     return Async.Success(void 0)
                 } else {
-                    return this.file.write(dbPath, JSON.stringify({ users: {}, transactions: {} }, null, 3))
+                    return this.file.write(
+                        dbPath, 
+                        JSON.stringify({ users: {}, transactions: {} }, null, 3)
+                    )
                 }
             })
             .zipRight(this.file.read(dbPath))

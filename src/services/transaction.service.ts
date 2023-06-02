@@ -53,7 +53,7 @@ export class TransactionServiceImpl implements TransactionService {
             .read()
             .map(db => Object.values(db.transactions))
             .zip(this.users.findByUsername(user))
-            .map(([txs, user]) => txs.filter(t => t.from === user.username || t.to === user.username))
+            .map(([txs, user]) => txs.filter(t => [t.from, t.to].includes(user.username)))
     }
 }
 
