@@ -14,7 +14,7 @@ const mkNotFound = (user: string) => ({kind: "notFound", user }) as UserError
 export interface UserService {
     create(data: Omit<User, "id">): AsyncIO<UserError, User>,
     read(id: string): AsyncIO<UserError, User>,
-    findByUsername(username: string): AsyncIO<UserError, User>,
+    findByUsername(username: string): AsyncIO<UserNotFound, User>,
     update(data: User): AsyncIO<UserError, User>,
     delete(id: string): AsyncIO<UserError, string>
 }
@@ -52,10 +52,22 @@ export class UserServiceImpl implements UserService {
 
     read(id: string): AsyncIO<UserError,User> {
         const userLens = this.usersLens.at(id);
+        const transactionsLens = Lens.id<DB>().at("transactions")
         return this.db
             .read()
-            .map(x => userLens.read(x))
-            .chain(user => Either.fromNullish(mkNotFound(id), user).toAsync())
+            .map(x => [userLens.read(x), transactionsLens.read(x)] as const)
+            .chain(([user, txs]) => {
+                return Either
+                    .fromNullish(mkNotFound(id), user)
+                    .map((user) => {
+                        const ts = Object.values(txs)
+                        const adding = ts.filter(t => t.to === user.username).map(t => t.amount).reduce((a,b) => a+b,0)
+                        const subtracting = ts.filter(t => t.from === user.username).map(t => t.amount).reduce((a,b) => a+b,0)
+                        user.balance = user.balance + adding - subtracting;
+                        return user;
+                    })
+                    .toAsync()
+            })
     }
 
     findByUsername(username: string): AsyncIO<UserError,User> {
@@ -64,6 +76,7 @@ export class UserServiceImpl implements UserService {
             .map(x => this.usersLens.read(x))
             .map(users => Object.values(users).find(u => u.username === username))
             .chain(user => Either.fromNullish(mkNotFound(username), user).toAsync())
+            .chain(user => this.read(user.id))
     }
 
     update(data: User): AsyncIO<UserError,User> {

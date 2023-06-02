@@ -1,4 +1,27 @@
 {
-   "users": {},
-   "transactions": {}
+   "users": {
+      "a193f4a6-b9fb-40ff-a07e-d7dad258ed5e": {
+         "username": "juan",
+         "name": "juan",
+         "balance": 1000,
+         "password": "1234567",
+         "id": "a193f4a6-b9fb-40ff-a07e-d7dad258ed5e"
+      },
+      "ff577241-56b8-42d7-9080-58f15f229244": {
+         "username": "jose",
+         "name": "jose",
+         "balance": 1000,
+         "password": "1234567",
+         "id": "ff577241-56b8-42d7-9080-58f15f229244"
+      }
+   },
+   "transactions": {
+      "83a954b0-039a-4402-b61a-5da5526106ee": {
+         "amount": 100,
+         "from": "jose",
+         "to": "juan",
+         "id": "83a954b0-039a-4402-b61a-5da5526106ee",
+         "createdAt": "1685714509811"
+      }
+   }
 }
