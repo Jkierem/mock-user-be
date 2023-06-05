@@ -43,8 +43,6 @@ const getTxs = Async.require<R.HandleInput>()
 
 export const registerTransactionRoutes = (router: R.RouterAsync) => {
     return router
-        ['|>'](Cors.policy("/transactions", { methods: ["POST"] }))
-        ['|>'](R.useAsync("POST", "/transactions", createTx))
-        ['|>'](Cors.policy("/transactions/:username", { methods: ["GET"] }))
-        ['|>'](R.useAsync("GET" , "/transactions/:username", getTxs))
+        ['|>'](Cors.useAsync("POST", "/transactions", createTx))
+        ['|>'](Cors.useAsync("GET" , "/transactions/:username", getTxs))
 }

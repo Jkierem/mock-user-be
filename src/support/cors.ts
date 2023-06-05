@@ -6,26 +6,43 @@ const appendHeader = (name: string, val: string) => (res: Response) => {
     return res;
 }
 
+type Method =  "GET" | "HEAD" | "POST" | "PUT" | "DELETE" | "CONNECT" | "OPTIONS" | "TRACE" | "PATCH"
+
 type CorsConfig = {
     origin: string,
-    methods: string[],
-    headers: string[]
+    methods: Method[],
+    headers?: string[],
 }
 
 const defaultConfig: CorsConfig = {
     origin: "*",
-    methods: ["GET", "POST", "PUT"],
-    headers: ["Origin", "X-Requested-With", "Content-Type", "Accept", "Access-Control-Allow-Origin"]
+    methods: ["GET", "HEAD", "PUT", "PATCH", "POST", "DELETE"],
 }
 
 const preflight = (
     path: string,
-    config: CorsConfig = defaultConfig
-) => R.options(path, (_, r) => r.respond("", { headers: {
-    "Access-Control-Allow-Origin": config.origin,
-    "Access-Control-Allow-Headers": config.headers.join(", "),
-    "Access-Control-Allow-Methods": config.methods.join(", ")
-}}))
+    _config: Partial<CorsConfig> = defaultConfig
+) => R.options(path, (req, r) => {
+    const { raw } = req
+
+    const config = {
+        ...defaultConfig,
+        ..._config,
+        headers: _config.headers ?? raw.headers.get("Access-Control-Request-Headers")?.split(","),
+    }
+
+    const headers: Record<string, string> = {
+        "Access-Control-Allow-Origin": config.origin,
+        "Access-Control-Allow-Methods": config.methods.join(", ")
+    }
+
+    if( config.headers ){
+        headers[ "Access-Control-Allow-Headers"] = config.headers.join(",")
+    }
+
+
+    return r.respond("", { headers });
+})
 
 export const policy = (path: string, _config: Partial<CorsConfig> = defaultConfig) => (router: R.RouterAsync) => {
     const config = { ...defaultConfig, ..._config}
@@ -38,4 +55,23 @@ export const policy = (path: string, _config: Partial<CorsConfig> = defaultConfi
             (_, r) => r.continueWith(appendHeader("Access-Control-Allow-Origin", config.origin)))
         )
     }, pre);
+}
+
+/**
+ * Single route, single method CORS policy for a async handler
+ */
+export const useAsync = (
+    method: Method, 
+    path: string, 
+    handle: R.AsyncHandle,
+    _config: Omit<Partial<CorsConfig>, "methods"> = defaultConfig
+) => (router: R.RouterAsync) => {
+    const config: CorsConfig = { 
+        ...defaultConfig, 
+        ..._config,
+        methods: [method]
+    };
+    return router
+        ['|>'](policy(path, config))
+        ['|>'](R.useAsync(method, path, handle))
 }

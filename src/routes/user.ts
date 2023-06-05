@@ -65,10 +65,7 @@ const tryLogin = Async.require<R.HandleInput>()
 
 export const registerUserRoutes = (router: R.RouterAsync) => {
     return router
-        ['|>'](Cors.policy("/users/:id", { methods: ["GET"] }))
-        ['|>'](R.useAsync("GET" , "/users/:id", getUser))
-        ['|>'](Cors.policy("/users", { methods: ["POST"] }))
-        ['|>'](R.useAsync("POST", "/users"    , createUser))
-        ['|>'](Cors.policy("/login", { methods: ["POST"] }))
-        ['|>'](R.useAsync("POST", "/login"    , tryLogin))
+        ['|>'](Cors.useAsync("GET", "/user/:id", getUser))
+        ['|>'](Cors.useAsync("POST", "/users"  , createUser))
+        ['|>'](Cors.useAsync("POST", "/login"  , tryLogin))
 }
