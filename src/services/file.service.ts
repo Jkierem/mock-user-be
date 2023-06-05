@@ -1,6 +1,6 @@
-import { Async as A } from "https://deno.land/x/jazzi@v3.0.4/mod.ts"
+import { Async as A } from "https://deno.land/x/jazzi@v3.0.7/mod.ts"
 import { FileAdapter, FileAdapterLive } from "../adapters/file.adapter.ts";
-import { AsyncUIO } from "https://deno.land/x/jazzi@v3.0.4/Async/types.ts";
+import { AsyncUIO } from "https://deno.land/x/jazzi@v3.0.7/Async/types.ts";
 
 export interface FileService {
     read(path: string): AsyncUIO<string>

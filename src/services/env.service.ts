@@ -1,5 +1,5 @@
-import { Either as E } from "https://deno.land/x/jazzi@v3.0.4/mod.ts"
-import { Either } from "https://deno.land/x/jazzi@v3.0.4/Either/types.ts"
+import { Either as E } from "https://deno.land/x/jazzi@v3.0.7/mod.ts"
+import { Either } from "https://deno.land/x/jazzi@v3.0.7/Either/types.ts"
 
 export const getEnv = (str: string, def: string): Either<string, string> => {
     if( Deno.env.has(str) ){

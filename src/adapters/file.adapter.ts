@@ -1,5 +1,5 @@
-import { Async as A } from "https://deno.land/x/jazzi@v3.0.4/mod.ts"
-import { AsyncUIO } from "https://deno.land/x/jazzi@v3.0.4/Async/types.ts"
+import { Async as A } from "https://deno.land/x/jazzi@v3.0.7/mod.ts"
+import { AsyncUIO } from "https://deno.land/x/jazzi@v3.0.7/Async/types.ts"
 
 export interface Env {
     readFile: (path: string) => Promise<Uint8Array>,

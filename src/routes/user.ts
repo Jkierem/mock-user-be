@@ -1,10 +1,10 @@
-import { Async } from 'https://deno.land/x/jazzi@v3.0.4/mod.ts'
-import * as R from 'https://deno.land/x/jazzi_net@v1.0.1/core/router.ts'
+import { Async } from 'https://deno.land/x/jazzi@v3.0.7/mod.ts'
+import * as R from 'https://deno.land/x/jazzi_net@v1.0.2/core/router.ts'
+import * as Cors from 'https://deno.land/x/jazzi_net@v1.0.2/core/cors.ts';
 import { UserNameTaken, UserNotFound, UserServiceLive } from '../services/user.service.ts'
 import { BadRequest, NotFound, ServerError, Success, Unauthorized, getBody } from '../support/response.ts';
 import { Credentials, User, validateCredentianlsSchema, validateUserSchema } from '../model/user.ts';
 import { ValidationError } from '../support/schema.ts';
-import * as Cors from "../support/cors.ts";
 
 const getUser = Async.require<R.HandleInput>()
     .chain(({ request, results }) => {

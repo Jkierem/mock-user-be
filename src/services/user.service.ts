@@ -1,5 +1,5 @@
-import { AsyncIO } from "https://deno.land/x/jazzi@v3.0.4/Async/types.ts";
-import { Async, Either } from "https://deno.land/x/jazzi@v3.0.4/mod.ts";
+import { AsyncIO } from "https://deno.land/x/jazzi@v3.0.7/Async/types.ts";
+import { Async, Either } from "https://deno.land/x/jazzi@v3.0.7/mod.ts";
 import { User } from "../model/user.ts";
 import { DB, DBService, DBServiceLive } from "./db.service.ts";
 import { CryptoAdapter, CryptoAdapterLive } from "../adapters/crypto.adapter.ts";

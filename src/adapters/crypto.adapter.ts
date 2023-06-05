@@ -1,5 +1,5 @@
-import { Async } from "https://deno.land/x/jazzi@v3.0.4/mod.ts";
-import { AsyncUIO } from "https://deno.land/x/jazzi@v3.0.4/Async/types.ts";
+import { Async } from "https://deno.land/x/jazzi@v3.0.7/mod.ts";
+import { AsyncUIO } from "https://deno.land/x/jazzi@v3.0.7/Async/types.ts";
 
 export interface CryptoAdapter {
     randomUUID(): AsyncUIO<string>

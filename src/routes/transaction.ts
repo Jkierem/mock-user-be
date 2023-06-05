@@ -1,10 +1,10 @@
-import { Async } from 'https://deno.land/x/jazzi@v3.0.4/mod.ts'
-import * as R from 'https://deno.land/x/jazzi_net@v1.0.1/core/router.ts'
+import { Async } from 'https://deno.land/x/jazzi@v3.0.7/mod.ts'
+import * as R from 'https://deno.land/x/jazzi_net@v1.0.2/core/router.ts'
+import * as Cors from 'https://deno.land/x/jazzi_net@v1.0.2/core/cors.ts';
 import { TransactionError, TransactionServiceLive } from '../services/transaction.service.ts'
 import { BadRequest, ServerError, Success, getBody } from '../support/response.ts'
 import { Transaction, validateTransaction } from '../model/transaction.ts'
 import { ValidationError } from '../support/schema.ts'
-import * as Cors from "../support/cors.ts";
 
 const createTx = Async.require<R.HandleInput>()
     .chain(({ request, results }) => {

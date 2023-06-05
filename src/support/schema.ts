@@ -1,6 +1,6 @@
 // deno-lint-ignore-file no-explicit-any
-import { Either } from "https://deno.land/x/jazzi@v3.0.4/Either/types.ts"
-import { Either as E } from "https://deno.land/x/jazzi@v3.0.4/mod.ts"
+import { Either } from "https://deno.land/x/jazzi@v3.0.7/Either/types.ts"
+import { Either as E } from "https://deno.land/x/jazzi@v3.0.7/mod.ts"
 
 export type Validator<T> = {
     exec: (data: T) => Either<string, T>,
