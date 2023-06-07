@@ -8,10 +8,13 @@ export interface Transaction {
     createdAt: string
 }
 
-export const validateTransaction = S.makeSchema<Transaction>({
-    id: S.anything(),
+type ComputedAttrs = "createdAt" | "id"
+export type CreateTransactionData = Omit<Transaction, ComputedAttrs>
+
+export const CreateTransactionSchema = S.makeSchema<CreateTransactionData>({
     amount: S.numerical<number>()["&&"](S.minimun(1)),
     from: S.required(),
     to: S.required(),
-    createdAt: S.anything()
 })
+
+export const validateCreateTransactionPayload = S.validateAsync(CreateTransactionSchema);

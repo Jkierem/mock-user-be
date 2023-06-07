@@ -1,6 +1,6 @@
 import { AsyncIO } from "https://deno.land/x/jazzi@v3.0.7/Async/types.ts";
 import { Async, Either } from "https://deno.land/x/jazzi@v3.0.7/mod.ts";
-import { User } from "../model/user.ts";
+import { CreateUserData, User } from "../model/user.ts";
 import { DB, DBService, DBServiceLive } from "./db.service.ts";
 import { CryptoAdapter, CryptoAdapterLive } from "../adapters/crypto.adapter.ts";
 import { Lens } from "../support/lens.ts";
@@ -12,7 +12,7 @@ const mkUserTaken = (username: string) => ({kind: "taken", username}) as UserErr
 const mkNotFound = (user: string) => ({kind: "notFound", user }) as UserError
 
 export interface UserService {
-    create(data: Omit<User, "id">): AsyncIO<UserError, User>,
+    create(data: CreateUserData): AsyncIO<UserError, User>,
     read(id: string): AsyncIO<UserError, User>,
     findByUsername(username: string): AsyncIO<UserNotFound, User>,
     update(data: User): AsyncIO<UserError, User>,
@@ -27,7 +27,7 @@ export class UserServiceImpl implements UserService {
 
     private usersLens = Lens.id<DB>().at("users");
 
-    create(data: Omit<User,"id">): AsyncIO<UserError, User> {
+    create(data: CreateUserData): AsyncIO<UserError, User> {
         return this.crypto
             .randomUUID()
             .map(id => ({ ...data, id }))

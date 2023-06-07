@@ -1,6 +1,6 @@
 import { AsyncIO } from "https://deno.land/x/jazzi@v3.0.7/Async/types.ts";
 import { Async } from "https://deno.land/x/jazzi@v3.0.7/mod.ts";
-import { Transaction } from "../model/transaction.ts";
+import { CreateTransactionData, Transaction } from "../model/transaction.ts";
 import { UserNotFound, UserService, UserServiceLive } from "./user.service.ts";
 import { DBService, DBServiceLive } from "./db.service.ts";
 import { CryptoAdapter, CryptoAdapterLive } from "../adapters/crypto.adapter.ts";
@@ -10,7 +10,7 @@ const makeInsufficientFunds = (): InsufficientFunds => ({ kind: "insufficientFun
 export type TransactionError = UserNotFound | InsufficientFunds
 
 export interface TransactionService {
-    create(from: string, to: string, amount: number): AsyncIO<TransactionError, Transaction>
+    create(tx: CreateTransactionData): AsyncIO<TransactionError, Transaction>
     read(user: string): AsyncIO<UserNotFound, Transaction[]>
 }
 
@@ -21,14 +21,14 @@ export class TransactionServiceImpl implements TransactionService {
         private crypto: CryptoAdapter
     ){}
 
-    create(from: string, to: string, amount: number): AsyncIO<TransactionError, Transaction> {
+    create({ from, to, amount }: CreateTransactionData): AsyncIO<TransactionError, Transaction> {
         const fromUser = this.users.findByUsername(from);
         const toUser = this.users.findByUsername(to);
         return fromUser
             .zip(toUser)
             .chain(([source]) => {
                 if( source.balance >= amount ){
-                    const transaction: Omit<Transaction, "id" | "createdAt"> = {
+                    const transaction: CreateTransactionData = {
                         amount,
                         from,
                         to
