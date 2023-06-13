@@ -1,5 +1,4 @@
-import { Async as A } from "https://deno.land/x/jazzi@v3.0.7/mod.ts"
-import { AsyncUIO } from "https://deno.land/x/jazzi@v3.0.7/Async/types.ts"
+import * as A from "https://deno.land/x/jazzi@v4.0.0/Async/mod.ts"
 
 export interface Env {
     readFile: (path: string) => Promise<Uint8Array>,
@@ -8,14 +7,14 @@ export interface Env {
 }
 
 export interface FileAdapter {
-    read(path: string): AsyncUIO<Uint8Array>,
-    write(path: string, content: Uint8Array): AsyncUIO<void>
-    exists(path: string): AsyncUIO<boolean>
+    read(path: string): A.AsyncUIO<Uint8Array>,
+    write(path: string, content: Uint8Array): A.AsyncUIO<void>
+    exists(path: string): A.AsyncUIO<boolean>
 }
 
 export class FileAdapterImpl implements FileAdapter {
     constructor(private env: Env){}
-    exists(path: string): AsyncUIO<boolean> {
+    exists(path: string): A.AsyncUIO<boolean> {
         return A.from(async () => {
             try {
                 const data = await this.env.lstat(path);
@@ -23,15 +22,15 @@ export class FileAdapterImpl implements FileAdapter {
             } catch {
                 return false;
             }
-        })
+        }) as A.AsyncUIO<boolean>
     }
 
-    read(path: string): AsyncUIO<Uint8Array> {
-        return A.from(() => this.env.readFile(path));
+    read(path: string): A.AsyncUIO<Uint8Array> {
+        return A.from(() => this.env.readFile(path)) as A.AsyncUIO<Uint8Array>;
     }
 
-    write(path: string, content: Uint8Array): AsyncUIO<void> {
-        return A.from(() => this.env.writeFile(path, content));
+    write(path: string, content: Uint8Array): A.AsyncUIO<void> {
+        return A.from(() => this.env.writeFile(path, content)) as A.AsyncUIO<void>;
     }
 }
 

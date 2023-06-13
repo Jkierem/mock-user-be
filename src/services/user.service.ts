@@ -1,5 +1,5 @@
-import { AsyncIO } from "https://deno.land/x/jazzi@v3.0.7/Async/types.ts";
-import { Async, Either } from "https://deno.land/x/jazzi@v3.0.7/mod.ts";
+import * as A from "https://deno.land/x/jazzi@v4.0.0/Async/mod.ts"
+import * as E from "https://deno.land/x/jazzi@v4.0.0/Either/mod.ts"
 import { CreateUserData, User } from "../model/user.ts";
 import { DB, DBService, DBServiceLive } from "./db.service.ts";
 import { CryptoAdapter, CryptoAdapterLive } from "../adapters/crypto.adapter.ts";
@@ -12,11 +12,11 @@ const mkUserTaken = (username: string) => ({kind: "taken", username}) as UserErr
 const mkNotFound = (user: string) => ({kind: "notFound", user }) as UserError
 
 export interface UserService {
-    create(data: CreateUserData): AsyncIO<UserError, User>,
-    read(id: string): AsyncIO<UserError, User>,
-    findByUsername(username: string): AsyncIO<UserNotFound, User>,
-    update(data: User): AsyncIO<UserError, User>,
-    delete(id: string): AsyncIO<UserError, string>
+    create(data: CreateUserData): A.AsyncIO<UserError, User>,
+    read(id: string): A.AsyncIO<UserError, User>,
+    findByUsername(username: string): A.AsyncIO<UserNotFound, User>,
+    update(data: User): A.AsyncIO<UserError, User>,
+    delete(id: string): A.AsyncIO<UserError, string>
 }
 
 export class UserServiceImpl implements UserService {
@@ -27,78 +27,77 @@ export class UserServiceImpl implements UserService {
 
     private usersLens = Lens.id<DB>().at("users");
 
-    create(data: CreateUserData): AsyncIO<UserError, User> {
-        return this.crypto
-            .randomUUID()
-            .map(id => ({ ...data, id }))
-            .zip(this.db.read())
-            .chain(([user, data]) => {
+    create(data: CreateUserData): A.AsyncIO<UserError, User> {
+
+        return this.crypto.randomUUID()
+            ['|>'](A.map(id => ({ ...data, id })))
+            ['|>'](A.zip(this.db.read()))
+            ["|>"](A.chain(([user, data]) => {
                 const taken = Object
-                    .values(this.usersLens.read(data) ?? {})
-                    .find(u => u.username === user.username)
-                if(taken){
-                    return Async.Fail(mkUserTaken(user.username))
-                } else {
-                    return Async.Success([ user, data ] as [User, DB]);
-                }
-            })
-            .chain(([ user, data ]) => {
+                        .values(this.usersLens.read(data) ?? {})
+                        .find(u => u.username === user.username)
+                    if(taken){
+                        return A.Fail(mkUserTaken(user.username))
+                    } else {
+                        return A.Succeed([ user, data ] as [User, DB]);
+                    }
+            }))
+            ['|>'](A.chain(([user, data]) => {
                 data.users[user.id] = user;
-                return this.db
-                    .write(data)
-                    .mapTo(user)
-            })
+                return this.db.write(data)['|>'](A.map(() => user))
+            }))
     }
 
-    read(id: string): AsyncIO<UserError,User> {
+    read(id: string): A.AsyncIO<UserError,User> {
         const userLens = this.usersLens.at(id);
         const transactionsLens = Lens.id<DB>().at("transactions")
         return this.db
             .read()
-            .map(x => [userLens.read(x), transactionsLens.read(x)] as const)
-            .chain(([user, txs]) => {
-                return Either
+            ['|>'](A.map(x => [userLens.read(x), transactionsLens.read(x)] as const))
+            ['|>'](A.chain(([user, txs]) => {
+                return E
                     .fromNullish(mkNotFound(id), user)
-                    .map((user) => {
+                    ['|>'](E.map((user) => {
                         const ts = Object.values(txs)
                         const adding = ts.filter(t => t.to === user.username).map(t => t.amount).reduce((a,b) => a+b,0)
                         const subtracting = ts.filter(t => t.from === user.username).map(t => t.amount).reduce((a,b) => a+b,0)
                         user.balance = user.balance + adding - subtracting;
                         return user;
-                    })
-                    .toAsync()
-            })
+                    }))
+                    ['|>'](E.toAsync)
+            }))
     }
 
-    findByUsername(username: string): AsyncIO<UserError,User> {
+    findByUsername(username: string) {
         return this.db
             .read()
-            .map(x => this.usersLens.read(x))
-            .map(users => Object.values(users).find(u => u.username === username))
-            .chain(user => Either.fromNullish(mkNotFound(username), user).toAsync())
-            .chain(user => this.read(user.id))
+            ['|>'](A.map(x => this.usersLens.read(x)))
+            ['|>'](A.map(users => Object.values(users).find(u => u.username === username)))
+            ['|>'](A.chain(user => E.fromNullish(mkNotFound(username), user)['|>'](E.toAsync)))
+            ['|>'](A.chain(user => this.read(user.id)))
+            ["|>"](A.mapError(x => x as UserNotFound))
     }
 
-    update(data: User): AsyncIO<UserError,User> {
+    update(data: User): A.AsyncIO<UserError,User> {
         const userLens = this.usersLens.at(data.id);
         const updateUser = userLens.toConstant(data)
         return this.db.update(db => {
             if( userLens.read(db) ){
-                return Async.Success<unknown, UserError, DB>(updateUser(db))
+                return A.Succeed(updateUser(db))
             }
-            return Async.Fail<UserError, DB>(mkNotFound(data.id));
-        }).mapTo(data);
+            return A.Fail(mkNotFound(data.id));
+        })['|>'](A.map(() => data));
     }
 
-    delete(id: string): AsyncIO<UserError, string> {
+    delete(id: string): A.AsyncIO<UserError, string> {
         const userLens = this.usersLens.at(id);
         const removeUser = userLens.toConstant(undefined as unknown as User);
         return this.db.update(db => {
             if( userLens.read(db) ){
-                return Async.Success<unknown, UserError, DB>(removeUser(db))
+                return A.Succeed(removeUser(db))
             }
-            return Async.Fail<UserError, DB>(mkNotFound(id));
-        }).mapTo(id);
+            return A.Fail(mkNotFound(id));
+        })['|>'](A.map(() => id));
     }
 }
 

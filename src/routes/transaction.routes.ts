@@ -1,41 +1,40 @@
-import { Async } from 'https://deno.land/x/jazzi@v3.0.7/mod.ts'
-import * as R from 'https://deno.land/x/jazzi_net@v1.0.2/core/router.ts'
-import * as Cors from 'https://deno.land/x/jazzi_net@v1.0.2/core/cors.ts';
-import { TransactionError, TransactionServiceLive } from '../services/transaction.service.ts'
+import * as A from "https://deno.land/x/jazzi@v4.0.0/Async/mod.ts"
+import * as R from 'https://deno.land/x/jazzi_net@v1.0.3/core/router.ts'
+import * as Cors from 'https://deno.land/x/jazzi_net@v1.0.3/core/cors.ts';
+import { TransactionServiceLive } from '../services/transaction.service.ts'
 import { BadRequest, ServerError, Success, getBody } from '../support/response.ts'
-import { CreateTransactionData, Transaction, validateCreateTransactionPayload } from '../model/transaction.ts'
-import { ValidationError } from '../support/schema.ts'
+import { CreateTransactionData, validateCreateTransactionPayload } from '../model/transaction.ts'
 
-const createTx = Async.require<R.HandleInput>()
-    .chain(({ request, results }) => {
+const createTx = A.require<R.HandleInput>()
+    ['|>'](A.chain(({ request, results }) => {
         return getBody<CreateTransactionData>(request.raw)
-            .chain(validateCreateTransactionPayload)
-            .chain(data => TransactionServiceLive.create(data.result))
-            .map(Success)
-            .map(results.respondWith)
-            .recover((e: ValidationError<Transaction> | TransactionError) => {
+            ['|>'](A.chain(validateCreateTransactionPayload))
+            ['|>'](A.chain(data => TransactionServiceLive.create(data.result)))
+            ['|>'](A.map(Success))
+            ['|>'](A.map(results.respondWith))
+            ['|>'](A.recover((e) => {
                 if( e.kind === "validationError" ){
-                    return Async.Success(results.respondWith(BadRequest({ message: e.reason })))
+                    return A.Succeed(results.respondWith(BadRequest({ message: e.reason })))
                 } else if( e.kind === "insufficientFunds" ){
-                    return Async.Success(results.respondWith(BadRequest({ message: "Insufficient funds for transaction" })))
+                    return A.Succeed(results.respondWith(BadRequest({ message: "Insufficient funds for transaction" })))
                 } else if( e.kind === "notFound" ){
-                    return Async.Success(results.respondWith(BadRequest({ message: `Unknown user ${e.user}` })))
+                    return A.Succeed(results.respondWith(BadRequest({ message: `Unknown user ${e.user}` })))
                 } else {
-                    return Async.Success(results.respondWith(ServerError({ message: e })))
+                    return A.Succeed(results.respondWith(ServerError({ message: e })))
                 }
-            })
-    })
+            }))
+    }))
 
-const getTxs = Async.require<R.HandleInput>()
-    .chain(({ request, results }) => {
-        return Async.Success(request.params.username)
-            .chain(username => TransactionServiceLive.read(username))
-            .map(Success)
-            .map(results.respondWith)
-            .recover((e) => {
-                return Async.Success(results.respondWith(BadRequest({ message: e }))) 
-            })
-    })
+const getTxs = A.require<R.HandleInput>()
+    ['|>'](A.chain(({ request, results }) => {
+        return A.Succeed(request.params.username)
+            ['|>'](A.chain(username => TransactionServiceLive.read(username)))
+            ['|>'](A.map(Success))
+            ['|>'](A.map(results.respondWith))
+            ['|>'](A.recover((e) => {
+                return A.Succeed(results.respondWith(BadRequest({ message: e }))) 
+            }))
+    }))
 
 export const registerTransactionRoutes = (router: R.RouterAsync) => {
     return router

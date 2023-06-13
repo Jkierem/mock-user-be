@@ -1,10 +1,9 @@
 // deno-lint-ignore-file no-explicit-any
-import { Either } from "https://deno.land/x/jazzi@v3.0.7/Either/types.ts"
-import { Either as E } from "https://deno.land/x/jazzi@v3.0.7/mod.ts"
+import * as E from "https://deno.land/x/jazzi@v4.0.0/Either/mod.ts"
 
 export type Validator<T> = {
     kind: "validator",
-    exec: (data: T) => Either<string, T>,
+    exec: (data: T) => E.Either<string, T>,
     ["&&"]: <U>(other: Validator<U>) => Validator<T | U>
 }
 
@@ -17,7 +16,7 @@ const makeError = <T>(reason: T): ValidationError<T> => ({ kind: "validationErro
 export type ValidationSuccess<T> = { kind: "validationSuccess", result: T }
 const makeSuccess = <T>(result: T): ValidationSuccess<T> => ({ kind: "validationSuccess", result })
 
-export type SchemaResult<T> = Either<ValidationError<{
+export type SchemaResult<T> = E.Either<ValidationError<{
     [K in keyof T]: T[K] extends Record<any,any> ? SchemaResult<T[K]> : string | undefined 
 }>, ValidationSuccess<T>> 
 
@@ -41,29 +40,29 @@ export const makeSchema = <T>(schema: SchemaDefinition<T>): Schema<T> => ({
                     ? val.exec(data[key]) 
                     : makeSchema(val as SchemaDefinition<T[keyof T]>)
                         .validate(data[key] as any)
-                        .mapLeft(l => l.reason)
-                ] as [string, Either<string, any>]
+                        ['|>'](E.mapLeft(l => l.reason))
+                ] as [string, E.Either<string, any>]
         });
         
-        const hasError = results.some(([,x]) => x.isLeft());
+        const hasError = results.some(([,x]) => x['|>'](E.isLeft));
         
         if( hasError ){
             return E.Left(Object.fromEntries(
                 results
-                    .filter(([, val]) => val.isLeft())
-                    .map(([key, val]) => [key, val.getLeft()])
-                )).mapLeft(makeError) as unknown as SchemaResult<T>
+                    .filter(([, val]) => val['|>'](E.isLeft))
+                    .map(([key, val]) => [key, E.get(val)])
+                ))['|>'](E.mapLeft(makeError)) as unknown as SchemaResult<T>
         } else {
             return E.Right(makeSuccess(data)) as SchemaResult<T>
         }
     }
 })
 
-export const fromFunction = <T>(exec: (data: T) => Either<string, T>): Validator<T> => ({ 
+export const fromFunction = <T>(exec: (data: T) => E.Either<string, T>): Validator<T> => ({ 
     kind: "validator",
     exec,
     ["&&"]<U>(other: Validator<U>){
-        return fromFunction<T | U>((data) => exec(data as T).chain(() => other.exec(data as U)))
+        return fromFunction<T | U>((data) => exec(data as T)['|>'](E.chain(() => other.exec(data as U))))
     }
 })
 
@@ -75,10 +74,10 @@ export const minLength = (n: number) => fromFunction((x: string) => x.length >= 
 
 export const between = (min: number, max: number) => maxLength(max)["&&"](minLength(min));
 
-export const anything = <T>() => fromFunction<T>((x) => E.Right<T>(x) as Either<string, T>);
+export const anything = <T>() => fromFunction<T>((x) => E.Right<T>(x) as E.Either<string, T>);
 
 export const numerical = <T>() => fromFunction<T>((x: T) => typeof x === "number" ? E.Right(x) : E.Left("Must be a number"))
 
 export const minimun = (n: number) => fromFunction((x: number) => x >= n ? E.Right(x) : E.Left(`Must be larger or equal to ${n}`));
 
-export const validateAsync = <T>(s: Schema<T>) => (data: T) => s.validate(data).toAsync();
+export const validateAsync = <T>(s: Schema<T>) => (data: T) => s.validate(data)['|>'](E.toAsync);
