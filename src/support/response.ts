@@ -1,4 +1,4 @@
-import { Async } from "https://deno.land/x/jazzi@v4.0.0/mod.ts"
+import { Async } from "https://deno.land/x/jazzi@v4.1.0/mod.ts"
 
 export const makeJsonResponse = (status: number) => <T>(body: T) => new Response(JSON.stringify(body), {
     headers: { 'content-type': 'application/json' },

@@ -1,5 +1,5 @@
 // deno-lint-ignore-file no-explicit-any
-import * as E from "https://deno.land/x/jazzi@v4.0.0/Either/mod.ts"
+import * as E from "https://deno.land/x/jazzi@v4.1.0/Either/mod.ts"
 
 export type Validator<T> = {
     kind: "validator",

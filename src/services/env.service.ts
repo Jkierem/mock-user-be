@@ -1,4 +1,4 @@
-import * as E from "https://deno.land/x/jazzi@v4.0.0/Either/mod.ts"
+import * as E from "https://deno.land/x/jazzi@v4.1.0/Either/mod.ts"
 
 export const getEnv = (str: string, def: string): E.Either<string, string> => {
     if( Deno.env.has(str) ){

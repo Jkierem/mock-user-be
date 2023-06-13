@@ -1,6 +1,6 @@
-import * as A from "https://deno.land/x/jazzi@v4.0.0/Async/mod.ts"
-import * as R from 'https://deno.land/x/jazzi_net@v1.0.3/core/router.ts'
-import * as Cors from 'https://deno.land/x/jazzi_net@v1.0.3/core/cors.ts';
+import * as A from "https://deno.land/x/jazzi@v4.1.0/Async/mod.ts"
+import * as R from 'https://deno.land/x/jazzi_net@v1.0.4/core/router.ts'
+import * as Cors from 'https://deno.land/x/jazzi_net@v1.0.4/core/cors.ts';
 import { UserError, UserServiceLive } from '../services/user.service.ts'
 import { BadRequest, NotFound, ServerError, Success, Unauthorized, getBody } from '../support/response.ts';
 import { Credentials, User, validateCreateUserPayload, validateCredentianlsPayload } from '../model/user.ts';
@@ -24,7 +24,7 @@ const createUser = A.require<R.HandleInput>()
         if(request.raw.headers.get("content-type")?.includes("application/json")){
             return getBody<Omit<User,"id">>(request.raw)
                 ['|>'](A.chain(validateCreateUserPayload))
-                ['|>'](A.map(data => data.result))
+                ['|>'](A.access("result"))
                 ['|>'](A.chain(data => UserServiceLive.create(data)))
                 ['|>'](A.map(user => results.respondWith(Success(user))))
                 ['|>'](A.recover((e) => {
@@ -46,10 +46,10 @@ const tryLogin = A.require<R.HandleInput>()
         if(request.raw.headers.get("content-type")?.includes("application/json")){
             return getBody<Credentials>(request.raw)
                 ['|>'](A.chain(validateCredentianlsPayload))
-                ['|>'](A.map(val => val.result))
-                ['|>'](A.chain(data => UserServiceLive.findByUsername(data.username)['|>'](A.map(user => [data.password, user] as [string, User]))))
-                ['|>'](A.chain(([a, user]) => {
-                    if(user && a === user?.password){
+                ['|>'](A.access("result"))
+                ["|>"](A.bind("user", ({ username }) => UserServiceLive.findByUsername(username)))
+                ['|>'](A.chain(({ user, password }) => {
+                    if(user && password === user?.password){
                         const res = Success(user)
                         return A.Succeed(results.respondWith(res))
                     } else {

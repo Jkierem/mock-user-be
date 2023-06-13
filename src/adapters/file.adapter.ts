@@ -1,4 +1,4 @@
-import * as A from "https://deno.land/x/jazzi@v4.0.0/Async/mod.ts"
+import * as A from "https://deno.land/x/jazzi@v4.1.0/Async/mod.ts"
 
 export interface Env {
     readFile: (path: string) => Promise<Uint8Array>,
