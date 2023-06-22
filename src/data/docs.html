@@ -1,0 +1,140 @@
+<html>
+    <style>
+        * {
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        p {
+            max-width: 500px;
+        }
+
+        .endpoint {
+            margin-bottom: 24px;
+        }
+        
+        .endpoint__head {
+            font-weight: normal;
+            font-size: large;
+            display: flex;
+            flex-direction: row;
+            justify-content: flex-start;
+            align-items: center;
+            width: 30%;
+        }
+
+        .endpoint__head__element {
+            min-width: 70px;
+        }
+
+        .endpoint__head__element__method {
+            color: white;
+            border-radius: 8px;
+            border-color: black;
+            padding: 5px;
+            background-color: rgb(106, 174, 39);
+        }
+
+
+        .endpoint__head__element__method--post {
+            background-color: rgb(234, 31, 31);
+        }
+
+        .endpoint__head__element__path {
+            color: black;
+            font-size: larger;
+        }
+
+        .endpoint__body {
+            margin-block: 20px;
+        }
+    </style>
+    <body>
+        <section>
+            <h2>User</h2>
+            <section>
+                <article class="endpoint">
+                    <div class="endpoint__head">
+                        <div class="endpoint__head__element">
+                            <span class="endpoint__head__element__method">GET</span>
+                        </div>
+                        <div class="endpoint__head__element">
+                            <span class="endpoint__head__element__path">/user/:id</span>
+                        </div>
+                    </div>
+                    <div class="endpoint__body">
+                        <p>Get the information of a single user</p>
+                        <div>URL Params:
+                            <ul>
+                                <li>:id  user id</li>
+                            </ul>
+                        </div>
+                    </div>
+                </article>
+                <article class="endpoint">
+                    <div class="endpoint__head">
+                        <div class="endpoint__head__element">
+                            <span class="endpoint__head__element__method endpoint__head__element__method--post">POST</span>
+                        </div>
+                        <div class="endpoint__head__element">
+                            <span class="endpoint__head__element__path">/users</span>
+                        </div>
+                    </div>
+                    <div class="endpoint__body">
+                        <p>Create a user. Requires a json body with username, password, name and balance. Username must be unique. Balance must be a number</p>
+                    </div>
+                </article>
+                <article class="endpoint">
+                    <div class="endpoint__head">
+                        <div class="endpoint__head__element">
+                            <span class="endpoint__head__element__method endpoint__head__element__method--post">POST</span>
+                        </div>
+                        <div class="endpoint__head__element">
+                            <span class="endpoint__head__element__path">/login</span>
+                        </div>
+                    </div>
+                    <div class="endpoint__body">
+                        <p>Validate if an user can login. Requires a json body with username and password</p>
+                    </div>
+                </article>
+            </section>
+        </section>
+        <section>
+            <h2>Transaction</h2>
+            <section>
+                <article class="endpoint">
+                    <div class="endpoint__head">
+                        <div class="endpoint__head__element">
+                            <span class="endpoint__head__element__method endpoint__head__element__method--post">POST</span>
+                        </div>
+                        <div class="endpoint__head__element">
+                            <span class="endpoint__head__element__path">/transactions</span>
+                        </div>
+                    </div>
+                    <div class="endpoint__body">
+                        <p>Create a new transaction. Requires a json body with "from" , "to" and "amount". The "amount" must be a number. The "from" and "to" must be valid usernames with enough balance to go forth with the transaction</p>
+                    </div>
+                </article>
+            </section>
+            <section>
+                <article class="endpoint">
+                    <div class="endpoint__head">
+                        <div class="endpoint__head__element">
+                            <span class="endpoint__head__element__method">GET</span>
+                        </div>
+                        <div class="endpoint__head__element">
+                            <span class="endpoint__head__element__path">/transactions/:username</span>
+                        </div>
+                    </div>
+                    <div class="endpoint__body">
+                        <p>Get all transactions of a single user</p>
+                        <div>URL Params:
+                            <ul>
+                                <li>:username  username</li>
+                            </ul>
+                        </div>
+                    </div>
+                </article>
+            </section>
+        </section>
+    </body>
+</html>
