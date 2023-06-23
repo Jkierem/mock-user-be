@@ -1,0 +1,52 @@
+<html>
+    <style>
+        * {
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        p {
+            max-width: 500px;
+        }
+
+        .endpoint {
+            margin-bottom: 24px;
+        }
+        
+        .endpoint__head {
+            font-weight: normal;
+            font-size: large;
+            display: flex;
+            flex-direction: row;
+            justify-content: flex-start;
+            align-items: center;
+            width: 30%;
+        }
+
+        .endpoint__head__element {
+            min-width: 70px;
+        }
+
+        .endpoint__head__element__method {
+            color: white;
+            border-radius: 8px;
+            border-color: black;
+            padding: 5px;
+            background-color: rgb(106, 174, 39);
+        }
+
+
+        .endpoint__head__element__method--post {
+            background-color: rgb(234, 31, 31);
+        }
+
+        .endpoint__head__element__path {
+            color: black;
+            font-size: larger;
+        }
+
+        .endpoint__body {
+            margin-block: 20px;
+        }
+    </style>
+    {{body}}
+</html>
